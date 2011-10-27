@@ -44,10 +44,10 @@ sub get_login_info {
     my $urlbase = new URI(correct_urlbase());
     my $ua = new LWP::UserAgent();
     
-    my $response = $ua->post("https://browserid.org/verify?" . 
-                             "assertion=$assertion&" . 
-                             "audience=" . $urlbase->host);
-    
+    my $response = $ua->post("https://browserid.org/verify",
+                             [assertion => $assertion, 
+                              audience  => $urlbase->host]);
+
     my $info = decode_json($response->content());
     
     # XXX Add 120 secs because 'expires' is currently broken in deployed 

@@ -42,11 +42,13 @@ sub get_login_info {
     }
     
     my $urlbase = new URI(correct_urlbase());
+    my $audience = $urlbase->scheme . "://" . $urlbase->host_port;
+    
     my $ua = new LWP::UserAgent();
     
     my $response = $ua->post("https://browserid.org/verify",
                              [assertion => $assertion, 
-                              audience  => $urlbase->host]);
+                              audience  => $audience]);
 
     my $info = decode_json($response->content());
     
@@ -54,7 +56,7 @@ sub get_login_info {
     # BrowserID server - it returns exact current time, so is immediately
     # expired!
     if ($info->{'status'} eq "okay" &&
-        $info->{'audience'} eq $urlbase->host &&
+        $info->{'audience'} eq $audience &&
         (($info->{'expires'} / 1000) + 120) > time())
     {
         my $login_data = {

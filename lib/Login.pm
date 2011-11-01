@@ -35,7 +35,11 @@ use constant is_automatic          => 1;
 sub get_login_info {
     my ($self) = @_;
 
-    my $assertion = Bugzilla->cgi->param("browserid_assertion");
+    my $cgi = Bugzilla->cgi;
+    my $assertion = $cgi->param("browserid_assertion");
+    # Avoid the assertion being copied into any 'echoes' of the current URL
+    # in the page.
+    $cgi->delete('browserid_assertion');
 
     if (!$assertion) {
         return { failure => AUTH_NODATA };
@@ -46,15 +50,18 @@ sub get_login_info {
     
     my $ua = new LWP::UserAgent();
     
-    my $response = $ua->post("https://browserid.org/verify",
-                             [assertion => $assertion, 
-                              audience  => $audience]);
+    my $info = { 'status' => 'browserid-server-broken' };
+    eval {
+        my $response = $ua->post("https://browserid.org/verify",
+                                 [assertion => $assertion, 
+                                  audience  => $audience]);
 
-    my $info = decode_json($response->content());
+        $info = decode_json($response->content());
+    };
     
     # XXX Add 120 secs because 'expires' is currently broken in deployed 
     # BrowserID server - it returns exact current time, so is immediately
-    # expired!
+    # expired! This should be fixed soon.
     if ($info->{'status'} eq "okay" &&
         $info->{'audience'} eq $audience &&
         (($info->{'expires'} / 1000) + 120) > time())
@@ -82,7 +89,7 @@ sub get_login_info {
         foreach my $group (@{ $user->groups() }) {
             if (!grep { $group->name eq $_ } @safe_groups) {
                 # XXXdisabled for testing - my account is too powerful
-                # return { failure => AUTH_LOGINFAILED };
+                return { failure => AUTH_LOGINFAILED };
             }
         }
     

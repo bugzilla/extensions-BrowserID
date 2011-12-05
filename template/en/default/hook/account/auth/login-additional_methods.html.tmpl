@@ -8,9 +8,6 @@ function browserid_sign_in() {
             // This code will be invoked once the user has successfully
             // selected an email address they control to sign in with.
             window.location.href = "[% target FILTER none %]index.cgi?browserid_assertion=" + assertion;
-        } else {
-            // something went wrong!  the user isn't logged in.
-            alert("Oh no! Something went wrong...");
         }
     });
 }

@@ -60,7 +60,7 @@ sub get_login_info {
     
     my $info = { 'status' => 'browserid-server-broken' };
     eval {
-        my $response = $ua->post("https://browserid.org/verify",
+        my $response = $ua->post("https://verifier.login.persona.org/verify",
                                  [assertion => $assertion, 
                                   audience  => $audience]);
 

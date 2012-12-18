@@ -3,7 +3,7 @@
 [% USE Bugzilla %]
 [% cgi = Bugzilla.cgi %]
 
-<script src="https://browserid.org/include.js" type="text/javascript"></script>
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 function createHidden(name, value, form) {
@@ -15,7 +15,7 @@ function createHidden(name, value, form) {
 }
 
 function browserid_sign_in() {
-    navigator.id.getVerifiedEmail(function(assertion) {
+    navigator.id.get(function(assertion) {
         if (assertion) {
             // This code will be invoked once the user has successfully
             // selected an email address they control to sign in with.
